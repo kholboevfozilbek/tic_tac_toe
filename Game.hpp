@@ -27,6 +27,13 @@ public:
     void render();
 
 
+    void game_logic();
+
+    void listen_player_input(); // today we will implement this feature
+
+    void AI_input(); // upcoming video!
+
+
     // helper functions
 
     bool generate_board();

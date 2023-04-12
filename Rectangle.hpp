@@ -52,6 +52,16 @@ public:
         m_texture = SDL_CreateTextureFromSurface(renderer, m_surface);
     }
 
+    void set_empty(bool empty)
+    {
+        m_empty = empty;
+    }
+
+    void set_symbol(char ch)
+    {
+        m_symbol = ch;
+    }
+
 private:
     
     SDL_Rect m_rectangle;

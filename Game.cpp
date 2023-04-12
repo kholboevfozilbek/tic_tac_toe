@@ -106,6 +106,8 @@ int Game::execute()
     {
         event_handler(m_event);
 
+        game_logic();
+
         render();
     }
     
@@ -137,6 +139,79 @@ void Game::render()
 }
 
 
+void Game::game_logic()
+{
+    if(player.turn())
+    {
+        listen_player_input();
+    }
+    else
+    {
+        ///TODO: add here AI_input feature
+        // temporarily we take player input in all case, but in future this will change to AI
+        listen_player_input();
+    }
+}
+
+    
+void Game::listen_player_input() // today we will implement this feature
+{
+    SDL_Point mousePosition;
+
+    mousePosition.x = m_event.motion.x;
+    mousePosition.y = m_event.motion.y;
+
+    for(int i=0; i < 3; ++i)
+    {
+        for(int j = 0; j < 3; ++j)
+        {
+            if(SDL_PointInRect(&mousePosition, board[i][j].rect()))
+            {
+                if(board[i][j].empty())
+                {
+                    // player can only place his move to rectangles thats empty!
+
+                    if(m_event.button.type == SDL_MOUSEBUTTONDOWN)
+                    {
+                        switch (player.symbol())
+                        {
+                        case 'X':
+                            board[i][j].set_surface("assets/images/x.bmp", m_renderer);
+                            
+                            SDL_RenderCopy(m_renderer, board[i][j].texture(), NULL, board[i][j].rect());
+
+                            board[i][j].set_empty(false);
+
+                            board[i][j].set_symbol('X');
+
+                            ///TODO: here after player places his move, we should put player.turn to false
+                            /// and give the move to AI
+
+                            player.set_turn(false);
+
+                            break;
+
+                        case 'O':
+
+                            board[i][j].set_surface("assets/images/o.bmp", m_renderer);
+
+                            SDL_RenderCopy(m_renderer, board[i][j].texture(), NULL, board[i][j].rect());
+
+                            board[i][j].set_empty(false);
+
+                            board[i][j].set_symbol('O');
+
+                            player.set_turn(false);
+                        
+                        default:
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 // helper functions
 
