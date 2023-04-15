@@ -33,6 +33,8 @@ public:
 
     void AI_input(); // upcoming video!
 
+    bool check_win_draw();
+
 
     // helper functions
 
@@ -50,6 +52,10 @@ public:
     void render_option_O();
 
     void render_info_board();
+
+    void render_win();
+
+    void render_draw();
 
     void listen_user_input();
 
@@ -87,6 +93,14 @@ private:
     // game logic related attributes
 
     bool running = true;
+
+    bool win_flag = false;
+
+    bool draw_flag = false;
+
+    Rectangle win_draw;
+
+    char winner_symbol = '\0';
 
     Rectangle board[3][3];
 

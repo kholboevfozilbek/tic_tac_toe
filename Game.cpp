@@ -33,6 +33,8 @@ Game::Game() // initialization of all the tools and objects used in the game
 
     info_board_rect.set_dimensions(0, 0, 500, 50);
 
+    win_draw.set_dimensions(0, 0, 300, 50);
+
 
     // create main game window
 
@@ -106,7 +108,10 @@ int Game::execute()
     {
         event_handler(m_event);
 
-        game_logic();
+        if(!check_win_draw())
+        {
+            game_logic();
+        }
 
         render();
     }
@@ -133,9 +138,199 @@ void Game::render()
 
     SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 
+    if(win_flag)
+    {
+        render_win();
+    }
+    else if(draw_flag)
+    {
+        render_draw();
+    }
+
+    if(player.turn() && !win_flag)
+    {
+        render_info_board();
+    }
+
     display_board();
 
     SDL_RenderPresent(m_renderer);
+}
+
+
+bool Game::check_win_draw()
+{
+    ///TODO: check for DRAW
+
+    int counter = 0;
+
+    for(int i=0; i<3; ++i)
+    {
+        for(int j=0; j<3; ++j)
+        {
+            if(!board[i][j].empty())
+            {
+                ++counter;
+            }
+        }
+    }
+
+    if(counter == 9)
+    {
+        /// it means all the rectangle in the board is full, hence draw
+        draw_flag = true;
+
+        return true;
+    }
+
+
+    ///TODO: check for WIN
+
+    ///TODO: check for ROWWISE WIN CASES
+
+
+    /// FIRST ROW
+
+    if(board[0][0].symbol() != '\0')
+    {
+        if(board[0][0].symbol() == board[0][1].symbol() && board[0][1].symbol() == board[0][2].symbol())
+        {
+            winner_symbol = board[0][2].symbol();
+            
+            win_flag = true;
+
+            std::cout << "first row win has been captured! \n";
+
+            return true;
+        }
+    }
+
+
+    /// SECOND ROW
+
+    if(board[1][0].symbol() != '\0')
+    {
+        if(board[1][0].symbol() == board[1][1].symbol() && board[1][1].symbol() == board[1][2].symbol())
+        {
+            winner_symbol = board[1][2].symbol();
+            
+            win_flag = true;
+
+            std::cout << "second row win has been captured! \n";
+
+            return true;
+        }
+    }
+
+
+    /// THIRD ROW
+
+    if(board[2][0].symbol() != '\0')
+    {
+        if(board[2][0].symbol() == board[2][1].symbol() && board[2][1].symbol() == board[2][2].symbol())
+        {
+            winner_symbol = board[2][2].symbol();
+            
+            win_flag = true;
+
+            std::cout << "third row win has been captured! \n";
+
+            return true;
+        }
+    }
+
+
+    ///TODO: check for COLUMNWISE WIN CASES
+
+    /// FIRST COLOUMN
+
+    if(board[0][0].symbol() != '\0')
+    {
+        if(board[0][0].symbol() == board[1][0].symbol() && board[1][0].symbol() == board[2][0].symbol())
+        {
+            winner_symbol = board[2][0].symbol();
+            
+            win_flag = true;
+
+            std::cout << "first column win has been captured! \n";
+
+            return true;
+        }
+    }
+
+
+    /// SECOND COLOUMN
+
+    if(board[0][1].symbol() != '\0')
+    {
+        if(board[0][1].symbol() == board[1][1].symbol() && board[1][1].symbol() == board[2][1].symbol())
+        {
+            winner_symbol = board[2][1].symbol();
+            
+            win_flag = true;
+
+            std::cout << "second column win has been captured! \n";
+
+            return true;
+        }
+    }
+
+
+    /// THIRD COLOUMN
+
+    if(board[0][2].symbol() != '\0')
+    {
+        if(board[0][2].symbol() == board[1][2].symbol() && board[1][2].symbol() == board[2][2].symbol())
+        {
+            winner_symbol = board[2][2].symbol();
+            
+            win_flag = true;
+
+            std::cout << "third column win has been captured! \n";
+
+            return true;
+        }
+    }
+
+
+    ///TODO: check for DIAGONAL WIN CASES 
+
+    /// FISRT DIAGONAL
+
+    if(board[0][0].symbol() != '\0')
+    {
+        if(board[0][0].symbol() == board[1][1].symbol() && board[1][1].symbol() == board[2][2].symbol())
+        {
+            winner_symbol = board[2][2].symbol();
+            
+            win_flag = true;
+
+            std::cout << "first diagonal win has been captured! \n";
+
+            return true;
+        }
+    }
+
+
+    /// SECOND DIAGONAL
+
+    if(board[0][2].symbol() != '\0')
+    {
+        if(board[0][2].symbol() == board[1][1].symbol() && board[1][1].symbol() == board[2][0].symbol())
+        {
+            winner_symbol = board[2][0].symbol();
+            
+            win_flag = true;
+
+            std::cout << "second diagonal win has been captured! \n";
+
+            return true;
+        }
+    }
+
+    // if we hit here, it means there was no draw and no win case, so we need to continue the game
+
+    return false;
 }
 
 
@@ -316,8 +511,35 @@ void Game::render_info_board()
 
     text_texture = SDL_CreateTextureFromSurface(m_renderer, text_surface);
 
-    SDL_RenderCopy(m_renderer, text_texture, NULL, option_X.rect());
+    SDL_RenderCopy(m_renderer, text_texture, NULL, info_board_rect.rect());
 }
+
+
+void Game::render_win()
+{
+    std::string message = "W I N N E R :  ";
+
+    message += winner_symbol;
+
+    text_surface = TTF_RenderText_Solid(font, message.c_str(), {0, 255, 0});
+
+    text_texture = SDL_CreateTextureFromSurface(m_renderer, text_surface);
+
+    SDL_RenderCopy(m_renderer, text_texture, NULL, win_draw.rect());
+}
+
+
+void Game::render_draw()
+{
+    std::string message = "D R A W  !";
+
+    text_surface = TTF_RenderText_Solid(font, message.c_str(), {0, 255, 0});
+
+    text_texture = SDL_CreateTextureFromSurface(m_renderer, text_surface);
+
+    SDL_RenderCopy(m_renderer, text_texture, NULL, win_draw.rect());
+}
+
 
 void Game::listen_user_input()
 {
